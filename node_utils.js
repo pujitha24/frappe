@@ -65,11 +65,13 @@ function get_redis_subscriber(kind = "redis_queue", options = {}) {
 	if (connStr && connStr.startsWith("unix://")) {
 		client = redis.createClient({
 			socket: { path: connStr.replace("unix://", "") },
+			pingInterval: 60000,
 			...options,
 		});
 	} else {
-		client = redis.createClient({ url: connStr, ...options });
+		client = redis.createClient({ url: connStr, pingInterval: 60000, ...options });
 	}
+	client.on("error", (err) => console.warn(`redis (${kind}) client error:`, err.message));
 	return client;
 }
 
